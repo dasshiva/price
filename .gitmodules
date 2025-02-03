@@ -1,0 +1,3 @@
+[submodule "jikes"]
+	path = jikes
+	url = https://github.com/dasshiva/jikes
