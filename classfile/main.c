@@ -28,5 +28,6 @@ struct classfile* parse_class(struct mapped_file* file) {
     class->major = major;
     class->cpool_count = read_u16(file);
     log("Constant pool count = %d", class->cpool_count);
+    class->cpool = parse_cpool(file);
     return class;
 }

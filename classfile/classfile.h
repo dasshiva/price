@@ -1,5 +1,6 @@
 #ifndef __CLASSFILE_H__
 #define __CLASSFILE_H__
+#include "constant_pool.h"
 #include <stdint.h>
 
 #define u8  uint8_t
@@ -10,8 +11,10 @@
 struct classfile {
     u16 major;
     u16 cpool_count;
+    struct constant_pool* cpool;
 };
 
 struct classfile* parse_class(struct mapped_file* file);
+struct constant_pool* parse_cpool(struct mapped_file* file);
 
 #endif
