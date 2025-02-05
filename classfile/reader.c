@@ -2,7 +2,6 @@
 #include "classfile.h"
 #include <arpa/inet.h>
 #include <stdint.h>
-#include <stdio.h>
 
 u8 read_u8(struct mapped_file* src) {
     u8* buf = src->file;
