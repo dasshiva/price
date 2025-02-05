@@ -23,8 +23,10 @@ struct classfile* parse_class(struct mapped_file* file) {
         return NULL;
     }
     log("Parsing class file version %d.%d", major - 44, minor);
-    
+
     class = malloc(sizeof(struct classfile));
     class->major = major;
+    class->cpool_count = read_u16(file);
+    log("Constant pool count = %d", class->cpool_count);
     return class;
 }

@@ -9,6 +9,7 @@
 
 struct classfile {
     u16 major;
+    u16 cpool_count;
 };
 
 struct classfile* parse_class(struct mapped_file* file);
