@@ -66,9 +66,10 @@ struct mapped_file* file_map(const char* file) {
         return NULL;
     }
 
-    struct mapped_file* ret = malloc(sizeof(struct mapped_file*));
+    struct mapped_file* ret = malloc(sizeof(struct mapped_file));
     ret->file = buf;
     ret->size = st.st_size;
     ret->name = file;
+    ret->offset = 0;
     return ret;
 }
