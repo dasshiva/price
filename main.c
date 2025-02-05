@@ -5,5 +5,7 @@
 
 int main(int argc, const char** argv) {
         log("Starting VM version %s", VM_VERSION);
-        return  0;
+        if (argc < 2) 
+            error("USAGE: %s [file].class", argv[0]);
+        return 0;
 }

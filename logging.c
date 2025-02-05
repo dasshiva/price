@@ -24,12 +24,21 @@ int logger(const char* susbystem, const char* file, int line,
             const char* func, int level, const char* msg, ...) {
         va_list list;
         va_start(list, msg);
+#ifdef DEBUG
         fprintf(stdout, "%s: %s:%s:%d %s() ", level_to_text[level], susbystem, 
                     file, line, func);
         vfprintf(stdout, msg, list);
-        va_end(list);
-        if (level == ERROR)
-            exit(1);
         fprintf(stdout, "\n");
+#endif
+
+        if (level >= ERROR) {
+#ifndef DEBUG
+            vfprintf(stdout, msg, list);
+            fprintf(stdout, "\n");
+#endif
+            exit(level - ERROR);
+        }
+
+        va_end(list);
         return 0;
 }
