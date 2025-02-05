@@ -5,7 +5,7 @@
 #define LOG                        0
 #define WARN                       1
 #define ERROR                      2
-#define ERROR_WITH_EXIT_CODE(code) (3 + code)
+#define ERROR_WITH_EXIT_CODE(code) (2 + code)
 
 // Do not use this function directly, call the macros defined below
 int logger(const char*, const char*, int, const char*, int, const char*, ...);
