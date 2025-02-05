@@ -1,4 +1,5 @@
 #include "fileman.h"
+#include <stdlib.h>
 #define SUBSYSTEM "core/fileman"
 #include "logging.h"
 
@@ -49,8 +50,8 @@ void file_close(int fd) {
     close(fd);
 }
 
-void* file_map(const char* file) {
-    void* ret = NULL;
+struct mapped_file* file_map(const char* file) {
+    void* buf = NULL;
     struct stat st;
     if (!file_exists(file, &st))
         return NULL;
@@ -59,11 +60,14 @@ void* file_map(const char* file) {
     if (!fd)
         return NULL;
 
-    ret = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-    if (ret == MAP_FAILED) {
+    buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (buf == MAP_FAILED) {
         warn("File %s could not be mapped to memory because %s", file, strerror(errno));
         return NULL;
     }
 
+    struct mapped_file* ret = malloc(sizeof(struct mapped_file*));
+    ret->file = buf;
+    ret->size = st.st_size;
     return ret;
 }

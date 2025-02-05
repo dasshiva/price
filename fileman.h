@@ -2,10 +2,16 @@
 #define __FILEMAN_H__
 
 #include <sys/stat.h>
+#include <stdint.h>
+
+struct mapped_file {
+    uint64_t size;
+    void* file;
+};
 
 int file_exists(const char* file, struct stat* details);
 int file_open(const char* file, int flags);
 void file_close(int fd);
-void* file_map(const char* file);
+struct mapped_file* file_map(const char* file);
 
 #endif
