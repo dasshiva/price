@@ -7,6 +7,7 @@
 struct mapped_file {
     uint64_t size;
     void* file;
+    const char* name;
 };
 
 int file_exists(const char* file, struct stat* details);
