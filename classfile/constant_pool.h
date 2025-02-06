@@ -20,7 +20,7 @@ struct constant_pool {
     void* data;
 };
 
-int validate_cpool(struct constant_pool* cpool);
+int validate_cpool(struct constant_pool* cpool, int len);
 struct constant_pool* parse_cpool(struct mapped_file* src, int len);
 
 // Constant pool tags

@@ -138,6 +138,6 @@ struct constant_pool* parse_cpool(struct mapped_file* src, int len) {
     return pool;
 }
 
-int validate_cpool(struct constant_pool* cpool) {
+int validate_cpool(struct constant_pool* cpool, int len) {
     return 0;
 }
