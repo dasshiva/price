@@ -7,6 +7,7 @@
 #define MAX_JAVA_VERSION 48
 #define SUBSYSTEM "classfile/main"
 #include "../logging.h"
+#include "constant_pool.h"
 
 struct classfile* parse_class(struct mapped_file* file) {
     struct classfile* class = NULL;
@@ -28,6 +29,15 @@ struct classfile* parse_class(struct mapped_file* file) {
     class->major = major;
     class->cpool_count = read_u16(file);
     log("Constant pool count = %d", class->cpool_count);
-    class->cpool = parse_cpool(file);
+    class->cpool = parse_cpool(file, class->cpool_count);
+    if (!class->cpool) {
+        warn("Failed to parse constant pool");
+        goto fail;
+    }
+
     return class;
+
+fail:
+    free(class);
+    return NULL;
 }

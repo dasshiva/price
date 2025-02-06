@@ -1,7 +1,6 @@
 #include "../fileman.h"
 #include "classfile.h"
 #include <arpa/inet.h>
-#include <stdint.h>
 
 u8 read_u8(struct mapped_file* src) {
     u8* buf = src->file;
@@ -28,4 +27,11 @@ u64 read_u64(struct mapped_file* src) {
     u64 d1 = read_u32(src);
     u64 d2 = read_u32(src);
     return (d2 << 32) | d1;
+}
+
+int skip(u64 off, struct mapped_file* src) {
+    if (src->offset + off >= src->size)
+        return 0;
+    src->offset += off;
+    return 1;
 }

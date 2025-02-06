@@ -60,7 +60,7 @@ struct mapped_file* file_map(const char* file) {
     if (!fd)
         return NULL;
 
-    buf = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    buf = mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
     if (buf == MAP_FAILED) {
         warn("File %s could not be mapped to memory because %s", file, strerror(errno));
         return NULL;
