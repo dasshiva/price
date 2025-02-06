@@ -19,6 +19,7 @@ struct constant_pool* parse_cpool(struct mapped_file* src, int len) {
         u8 tag = read_u8(src);
         log("Constant pool index = %d tag = %d", index + 1, tag);
         switch (tag) {
+            case CONSTANT_UTF8: 
             default:
                 warn("Unknown constant pool element with tag = %d", tag);
                 return NULL;
