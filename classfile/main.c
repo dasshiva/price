@@ -35,6 +35,11 @@ struct classfile* parse_class(struct mapped_file* file) {
         goto fail;
     }
 
+    if (!validate_cpool(class->cpool)) {
+        warn("Constant Pool elements do not uphold all invariants");
+        free(class->cpool);
+        goto fail;
+    }
     return class;
 
 fail:

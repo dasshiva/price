@@ -16,5 +16,4 @@ struct classfile {
 };
 
 struct classfile* parse_class(struct mapped_file* file);
-
 #endif

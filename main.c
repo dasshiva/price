@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #define SUBSYSTEM "core/main"
 #include "logging.h"
 #include "fileman.h"
@@ -15,7 +16,10 @@ int main(int argc, const char** argv) {
 
         log("File %s (%ld bytes) sucessfully mapped", argv[1], ret->size);
         struct classfile* class = parse_class(ret);
-        if (!class)
-            error_with_code(3, "Failed to parse class file %s", ret->name);
+        if (!class) {
+            const char* n = ret->name;
+            free(ret);
+            error_with_code(3, "Failed to parse class file %s", n);
+        }
         return 0;
 }
