@@ -14,7 +14,7 @@ struct constant_pool* parse_cpool(struct mapped_file* src, int len) {
     log("Parsing constant pool of %d elements", len - 1);
     struct constant_pool* pool = malloc(sizeof(struct constant_pool) * len);
     int index = 0;
-    while (index < len - 1) {
+    while (index < len) {
         pool[index].tag = read_u8(src);
         pool[index].data = raw_buf + src->offset;
         log("Constant pool index = %d tag = %d", index + 1, pool[index].tag);
@@ -142,7 +142,7 @@ struct constant_pool* parse_cpool(struct mapped_file* src, int len) {
 
 int validate_cpool(struct constant_pool* cpool, int len) {
     int index = 0;
-    while (index < len - 1) {
+    while (index < len) {
         struct constant_pool elem = cpool[index];
         int tag = elem.tag & 0b11111;
         log("Validating constant pool index =  %d", index);

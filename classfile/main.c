@@ -29,7 +29,7 @@ struct classfile* parse_class(struct mapped_file* file) {
 
     class = malloc(sizeof(struct classfile));
     class->major = major;
-    class->cpool_count = read_u16(file);
+    class->cpool_count = read_u16(file) - 1;
     log("Constant pool count = %d", class->cpool_count);
     class->cpool = parse_cpool(file, class->cpool_count);
     if (!class->cpool) {
@@ -47,7 +47,7 @@ struct classfile* parse_class(struct mapped_file* file) {
     log("Class access flags = %d", class->acc_flags);
 
     class->this_class = read_u16(file) - 1;
-    if (!IS_VALID_INDEX(class->this_class, class->cpool_count - 1)) {
+    if (!IS_VALID_INDEX(class->this_class, class->cpool_count)) {
         warn("this_class index %d is invalid", class->this_class);
         goto fail;
     }
@@ -62,7 +62,7 @@ struct classfile* parse_class(struct mapped_file* file) {
     class->super_class = read_u16(file);
     class->super_class -= (class->super_class == 0) ? 0 : 1;
     if (class->super_class != 0) { // this is not java/lang/Object
-        if (!IS_VALID_INDEX(class->super_class, class->cpool_count - 1)) {
+        if (!IS_VALID_INDEX(class->super_class, class->cpool_count)) {
             warn("super_class index %d is invalid", class->super_class);
             goto fail;
         }
@@ -88,7 +88,7 @@ struct classfile* parse_class(struct mapped_file* file) {
     class->fields_count = read_u16(file);
     log("Fields count = %d", class->fields_count);
 
-    class->fields = parse_fields(file, class->cpool, class->fields_count, class->cpool_count - 1);
+    class->fields = parse_fields(file, class->cpool, class->fields_count, class->cpool_count);
     if (!class->fields && (class->fields_count != 0)) {
         warn("Failed to parse the class fields");
         goto fail;
@@ -97,7 +97,7 @@ struct classfile* parse_class(struct mapped_file* file) {
     class->methods_count = read_u16(file);
     log("methods count = %d", class->methods_count);
 
-    class->methods = parse_methods(file, class->cpool, class->methods_count, class->cpool_count - 1);
+    class->methods = parse_methods(file, class->cpool, class->methods_count, class->cpool_count);
     if (!class->methods && (class->methods_count != 0)) {
         warn("Failed to parse the class methods");
         goto fail;

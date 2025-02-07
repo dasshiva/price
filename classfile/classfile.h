@@ -10,12 +10,35 @@
 struct constant_pool;
 struct mapped_file;
 
+typedef union {
+
+} field_attributes;
+
+typedef union {
+
+} method_attributes;
+
+typedef union {
+
+} code_attributes;
+
+typedef union {
+
+} file_attributes;
+
+typedef union {
+    field_attributes* f_attrs;
+    method_attributes* m_attrs;
+    code_attributes*  c_attrs;
+    file_attributes*  fl_attrs;
+} attributes;
+
 struct field_or_method {
     u16   acc_flags;
     u16   name;
     u16   desc;
     u16   attrs_count;
-    void* attributes_base;
+    attributes* attributes_base;
 };
 
 struct classfile {
