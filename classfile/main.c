@@ -87,6 +87,21 @@ struct classfile* parse_class(struct mapped_file* file) {
 
     class->fields_count = read_u16(file);
     log("Fields count = %d", class->fields_count);
+
+    class->fields = parse_fields(file, class->cpool, class->fields_count);
+    if (!class->fields && (class->fields_count != 0)) {
+        warn("Failed to parse the class fields");
+        goto fail;
+    }
+
+    class->methods_count = read_u16(file);
+    log("methods count = %d", class->methods_count);
+
+    class->fields = parse_methods(file, class->cpool, class->fields_count);
+    if (!class->methods && (class->methods_count != 0)) {
+        warn("Failed to parse the class methods");
+        goto fail;
+    }
     return class;
 
 fail:
