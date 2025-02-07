@@ -30,6 +30,20 @@ u64 read_u64(struct mapped_file* src) {
     return (d1 << 32) | d2;
 }
 
+u16 read_u16_nr(struct mapped_file* src) {
+    u16* buf = (uint16_t*) ((uint8_t*)src->file + src->offset);
+    u16 data = *buf;
+    src->offset += 2;
+    return data;
+}
+
+u32 read_u32_nr(struct mapped_file* src) {
+    u32* buf = (uint32_t*) ((uint8_t*)src->file + src->offset);
+    u32 data = *buf;
+    src->offset += 4;
+    return data;
+}
+
 int skip(u64 off, struct mapped_file* src) {
     if (src->offset + off >= src->size)
         return 0;
@@ -51,13 +65,13 @@ void write_u8(u8 data, struct mapped_file* src) {
 }
 
 void write_u16(u16 data, struct mapped_file* src) {
-    u16* buf = src->file;
-    buf[src->offset] = data;
+    u16* buf = (uint16_t*) ((uint8_t*)src->file + src->offset);
+    *buf = data;
     src->offset += 2;
 }
 
 void write_u32(u32 data, struct mapped_file* src) {
-    u32* buf = src->file;
-    buf[src->offset] = data;
+    u32* buf = (uint32_t*) ((uint8_t*)src->file + src->offset);
+    *buf = data;
     src->offset += 4;
 }

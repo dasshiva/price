@@ -13,5 +13,7 @@ int putback(u64 off, struct mapped_file* src);
 void write_u8(u8 data, struct mapped_file* src);
 void write_u16(u16 data, struct mapped_file* src);
 void write_u32(u32 data, struct mapped_file* src);
-
+// The "_nr" or "no-reverse" variants do not reverse endian
+u16 read_u16_nr(struct mapped_file* src); 
+u16 read_u32_nr(struct mapped_file* src);
 #endif

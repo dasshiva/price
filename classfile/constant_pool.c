@@ -11,11 +11,10 @@ struct constant_pool* parse_cpool(struct mapped_file* src, int len) {
     // JVM spec 4.1 (under constant_pool_count) says 
     // "The value of the constant_pool_count item is equal to the number of entries in the constant_pool table plus one"
     // So the actual number of items is one less than len
-    len -= 1;
-    log("Parsing constant pool of %d elements", len);
+    log("Parsing constant pool of %d elements", len - 1);
     struct constant_pool* pool = malloc(sizeof(struct constant_pool) * len);
     int index = 0;
-    while (index < len) {
+    while (index < len - 1) {
         pool[index].tag = read_u8(src);
         pool[index].data = raw_buf + src->offset;
         log("Constant pool index = %d tag = %d", index + 1, pool[index].tag);
@@ -138,6 +137,122 @@ struct constant_pool* parse_cpool(struct mapped_file* src, int len) {
     return pool;
 }
 
+#define IS_VALID_INDEX(idx, len) (idx < len)
+#define TAG(tag) (tag & 0b11111)
+
 int validate_cpool(struct constant_pool* cpool, int len) {
-    return 0;
+    int index = 0;
+    while (index < len - 1) {
+        struct constant_pool elem = cpool[index];
+        int tag = elem.tag & 0b11111;
+        log("Validating constant pool index =  %d", index);
+        switch (tag) { // get lowest 5 bits
+            case CONSTANT_FIELDREF:
+            case CONSTANT_METHODREF:
+            case CONSTANT_INTERFACE_METHODREF: {
+                struct mapped_file src = {0};
+                src.file = elem.data;
+                src.offset = 0;
+                src.size = 4;
+                u16 class = read_u16_nr(&src);
+                u16 ntype = read_u16_nr(&src);
+
+                if (!IS_VALID_INDEX(class, len)) {
+                    warn("class index %d in field/method/interface ref is out-of-bounds", class);
+                    return 0;
+                }
+
+                if (!IS_VALID_INDEX(ntype, len)) {
+                     warn("name-type index %d in field/method/interface ref is out-of-bounds", ntype);
+                    return 0;
+                }
+
+                if (TAG(cpool[class].tag) != CONSTANT_CLASS) {
+                    warn("class index %d does not refer to CONSTANT_CLASS", class);
+                    return 0;
+                }
+
+                if (TAG(cpool[class].tag) != CONSTANT_NAMETYPE) {
+                    warn("name-type index %d does not refer to CONSTANT_NAMETYPE", ntype);
+                    return 0;
+                }
+
+                break;
+            }
+
+            case CONSTANT_STRING:
+            case CONSTANT_METHODTYPE:
+            case CONSTANT_CLASS: {
+                struct mapped_file src = {0};
+                src.file = elem.data;
+                src.offset = 0;
+                src.size = 2;
+
+                u16 class = read_u16_nr(&src);
+
+                if (!IS_VALID_INDEX(class, len)) {
+                    warn("name index %d for string/methodtype/class is invalid", class);
+                    return 0;
+                }
+
+                if (TAG(cpool[class].tag) != CONSTANT_UTF8) {
+                    warn("name index %d for string/methodtype/class does not refer to CONSTANT_UTF8", class);
+                }
+                break;
+            }
+
+            case CONSTANT_NAMETYPE: {
+                struct mapped_file src = {0};
+                src.file = elem.data;
+                src.offset = 0;
+                src.size = 4;
+
+                u16 name = read_u16_nr(&src);
+                u16 desc = read_u16_nr(&src);
+
+                if (!IS_VALID_INDEX(name, len)) {
+                    warn("name index %d for name-type descriptor is invalid", name);
+                    return 0;
+                }
+
+                if (!IS_VALID_INDEX(desc, len)) {
+                    warn("desc index %d for name-type descriptor is invalid", desc);
+                    return 0;
+                }
+
+                if (TAG(cpool[name].tag) != CONSTANT_UTF8) {
+                    warn("name index %d for name-type descriptor does not refer to CONSTANT_UTF8", name);
+                    return 0;
+                }
+
+                if (TAG(cpool[desc].tag) != CONSTANT_UTF8) {
+                    warn("name index %d for name-type descriptor does not refer to CONSTANT_UTF8", desc);
+                    return 0;
+                }
+
+                break;
+            }
+
+            case CONSTANT_DOUBLE:
+            case CONSTANT_LONG: {
+                index++;
+                break;
+            }
+
+            default: {
+                if (tag == CONSTANT_METHODHANDLE && tag == CONSTANT_INVOKEDYNAMIC) {
+                    warn("Method handles and invoke dynamic are not supported");
+                    return 0;
+                }
+
+                if (tag != CONSTANT_INTEGER && tag != CONSTANT_UTF8 && 
+                    tag != CONSTANT_FLOAT) {
+                        warn("Internal error: Unknown tag value %d", tag);
+                        return 0;
+                }
+            } // We do not validate CONSTANT_INTEGER/UTF8/FLOAT/DOUBLE/LONG
+        }
+        index++;
+    }
+    return 1;
 }
