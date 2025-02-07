@@ -18,9 +18,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#ifdef DEBUG
 static const char* level_to_text[] = {"LOG", "WARN", "ERROR"};
 
-int logger(const char* susbystem, const char* file, int line, 
+void logger(const char* susbystem, const char* file, int line, 
             const char* func, int level, const char* msg, ...) {
         va_list list;
         va_start(list, msg);
@@ -30,21 +31,25 @@ int logger(const char* susbystem, const char* file, int line,
             exit_code = level - ERROR;
             level -= exit_code;
         }
-#ifdef DEBUG
         fprintf(stdout, "%s: %s:%s:%d %s() ", level_to_text[level], susbystem, 
                     file, line, func);
         vfprintf(stdout, msg, list);
         fprintf(stdout, "\n");
-#endif
+	va_end(list);
 
-        if (level == ERROR) {
-#ifndef DEBUG
-            vfprintf(stdout, msg, list);
-            fprintf(stdout, "\n");
-#endif
-            exit(exit_code);
-        }
+        if (level == ERROR) 
+		exit(exit_code);
 
-        va_end(list);
-        return 0;
 }
+
+#else
+
+void release_logger(int code, const char* msg, ...) {
+	va_list ap;
+	va_start(ap, msg);
+	vfprintf(stdout, msg, ap);
+	va_end(ap);
+	exit(code);
+}
+
+#endif
