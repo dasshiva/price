@@ -1,9 +1,12 @@
 #include "../fileman.h"
 #include "classfile.h"
 #include <arpa/inet.h>
+#include <signal.h>
 #include <stdint.h>
 
 u8 read_u8(struct mapped_file* src) {
+    if (src->offset >= src->size)
+        raise(SIGUSR1);
     u8* buf = src->file;
     u8 data = buf[src->offset];
     src->offset++;
@@ -11,6 +14,8 @@ u8 read_u8(struct mapped_file* src) {
 }
 
 u16 read_u16(struct mapped_file* src) {
+    if (src->offset + 2 >= src->size)
+        raise(SIGUSR1);
     u16* buf = (uint16_t*) ((uint8_t*)src->file + src->offset);
     u16 data = *buf;
     src->offset += 2;
@@ -18,6 +23,8 @@ u16 read_u16(struct mapped_file* src) {
 }
 
 u32 read_u32(struct mapped_file* src) {
+    if (src->offset + 4 >= src->size)
+        raise(SIGUSR1);
     u32* buf = (uint32_t*) ((uint8_t*)src->file + src->offset);
     u32 data = *buf;
     src->offset += 4;

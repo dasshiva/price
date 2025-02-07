@@ -6,6 +6,8 @@ struct field_or_method* parse_fields(struct mapped_file* src, struct constant_po
     struct field_or_method* ret = NULL;
     if (!count)
         return NULL;
+
+    
     return ret;
 }
 
