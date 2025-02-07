@@ -10,9 +10,15 @@
 struct constant_pool;
 
 struct classfile {
-    u16 major;
-    u16 cpool_count;
+    u16  major;
+    u16  cpool_count;
     struct constant_pool* cpool;
+    u16  acc_flags;
+    u16  this_class;
+    u16  super_class;
+    u16  interfaces_count;
+    u16* interfaces;
+    u16  fields_count;
 };
 
 struct classfile* parse_class(struct mapped_file* file);

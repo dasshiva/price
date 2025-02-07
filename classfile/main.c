@@ -9,6 +9,8 @@
 #include "../logging.h"
 #include "constant_pool.h"
 
+#define IS_VALID_INDEX(idx, len) (idx < len)
+
 struct classfile* parse_class(struct mapped_file* file) {
     struct classfile* class = NULL;
     log("Beginning to parse classfile %s", file->name);
@@ -40,6 +42,51 @@ struct classfile* parse_class(struct mapped_file* file) {
         free(class->cpool);
         goto fail;
     }
+
+    class->acc_flags = read_u16(file);
+    log("Class access flags = %d", class->acc_flags);
+
+    class->this_class = read_u16(file) - 1;
+    if (!IS_VALID_INDEX(class->this_class, class->cpool_count - 1)) {
+        warn("this_class index %d is invalid", class->this_class);
+        goto fail;
+    }
+
+    if ((class->cpool[class->this_class].tag & 0b11111) != CONSTANT_CLASS) {
+        warn("this_class index %d does not refer to a CONSTANT_CLASS", class->this_class);
+        goto fail;
+    }
+    
+    log("this_class index = %d", class->this_class);
+
+    class->super_class = read_u16(file);
+    class->super_class -= (class->super_class == 0) ? 0 : 1;
+    if (class->super_class != 0) { // this is not java/lang/Object
+        if (!IS_VALID_INDEX(class->super_class, class->cpool_count - 1)) {
+            warn("super_class index %d is invalid", class->super_class);
+            goto fail;
+        }
+
+        if ((class->cpool[class->super_class].tag & 0b11111) != CONSTANT_CLASS) {
+            warn("super_class index %d does not refer to a CONSTANT_UTF8", class->super_class);
+            goto fail;
+        }
+
+    }
+
+    log("super_class index = %d", class->super_class);
+
+    class->interfaces_count = read_u16(file);
+    log("Interfaces count = %d", class->interfaces_count);
+
+    class->interfaces = (u16*)((u8*)file->file + file->offset);
+    if (!skip(sizeof(u16) * class->interfaces_count, file)) {
+        warn("Malformed class file: Too many interfaces (%d interfaces)", class->interfaces_count);
+        goto fail;
+    }
+
+    class->fields_count = read_u16(file);
+    log("Fields count = %d", class->fields_count);
     return class;
 
 fail:
