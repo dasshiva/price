@@ -36,6 +36,6 @@ struct classfile {
 };
 
 struct classfile* parse_class(struct mapped_file* file);
-struct field_or_method* parse_fields(struct mapped_file* src, struct constant_pool* cpool, int count);
-struct field_or_method* parse_methods(struct mapped_file* src, struct constant_pool* cpool, int count);
+struct field_or_method* parse_fields(struct mapped_file* src, struct constant_pool* cpool, int count, int cp_count);
+struct field_or_method* parse_methods(struct mapped_file* src, struct constant_pool* cpool, int count, int cp_count);
 #endif
