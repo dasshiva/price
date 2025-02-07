@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #define CLASS_MAGIC 0xCAFEBABE 
-#define MAX_JAVA_VERSION 52 (Java 1.8)
+#define MAX_JAVA_VERSION 52 // (Java 1.8)
 #define SUBSYSTEM "classfile/main"
 #include "../logging.h"
 #include "constant_pool.h"
