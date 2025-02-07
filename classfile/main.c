@@ -97,7 +97,7 @@ struct classfile* parse_class(struct mapped_file* file) {
     class->methods_count = read_u16(file);
     log("methods count = %d", class->methods_count);
 
-    class->fields = parse_methods(file, class->cpool, class->fields_count);
+    class->methods = parse_methods(file, class->cpool, class->methods_count);
     if (!class->methods && (class->methods_count != 0)) {
         warn("Failed to parse the class methods");
         goto fail;
